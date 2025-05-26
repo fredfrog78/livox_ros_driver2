@@ -3,6 +3,7 @@
 readonly VERSION_ROS1="ROS1"
 readonly VERSION_ROS2="ROS2"
 readonly VERSION_HUMBLE="humble"
+readonly VERSION_JAZZY="jazzy"
 
 pushd `pwd` > /dev/null
 cd `dirname $0`
@@ -10,6 +11,7 @@ echo "Working Path: "`pwd`
 
 ROS_VERSION=""
 ROS_HUMBLE=""
+ROS_JAZZY=""
 
 # Set working ROS version
 if [ "$1" = "ROS2" ]; then
@@ -17,6 +19,9 @@ if [ "$1" = "ROS2" ]; then
 elif [ "$1" = "humble" ]; then
     ROS_VERSION=${VERSION_ROS2}
     ROS_HUMBLE=${VERSION_HUMBLE}
+elif [ "$1" = "jazzy" ]; then
+    ROS_VERSION=${VERSION_ROS2}
+    ROS_JAZZY=${VERSION_JAZZY}
 elif [ "$1" = "ROS1" ]; then
     ROS_VERSION=${VERSION_ROS1}
 else
@@ -58,7 +63,14 @@ if [ $ROS_VERSION = ${VERSION_ROS1} ]; then
     catkin_make -DROS_EDITION=${VERSION_ROS1}
 elif [ $ROS_VERSION = ${VERSION_ROS2} ]; then
     cd ../../
-    colcon build --cmake-args -DROS_EDITION=${VERSION_ROS2} -DHUMBLE_ROS=${ROS_HUMBLE}
+    CMAKE_ARGS="-DROS_EDITION=${VERSION_ROS2}"
+    if [ ! -z "$ROS_HUMBLE" ]; then
+        CMAKE_ARGS="${CMAKE_ARGS} -DHUMBLE_ROS=${ROS_HUMBLE}"
+    fi
+    if [ ! -z "$ROS_JAZZY" ]; then
+        CMAKE_ARGS="${CMAKE_ARGS} -DJAZZY_ROS=${ROS_JAZZY}"
+    fi
+    colcon build --cmake-args ${CMAKE_ARGS}
 fi
 popd > /dev/null
 

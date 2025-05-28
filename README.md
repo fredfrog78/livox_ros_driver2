@@ -117,6 +117,40 @@ A rviz launch example for HAP LiDAR would be:
 ros2 launch livox_ros_driver2 rviz_HAP_launch.py
 ```
 
+#### Replaying from an LVX File:
+
+To replay data from a pre-recorded LVX file, you need to configure the driver to use the LVX file as the data source.
+
+##### For ROS:
+1. Modify your chosen launch file (e.g., `rviz_HAP.launch`):
+   - Set the `data_src` parameter to `2`.
+   - Set the `lvx_file_path` argument (which maps to the `cmdline_file_path` param) to the absolute path of your `.lvx` file. For example:
+     ```xml
+     <arg name="lvx_file_path" default="/path/to/your/livox_data.lvx"/> 
+     <param name="data_src" value="2"/>
+     ```
+     Ensure the `<param name="cmdline_file_path" type="string" value="$(arg lvx_file_path)"/>` line is present in the launch file.
+2. Run the launch file:
+   ```shell
+   source ../../devel/setup.sh
+   roslaunch livox_ros_driver2 rviz_HAP.launch
+   ```
+
+##### For ROS2:
+1. Modify your chosen Python launch file (e.g., `rviz_HAP_launch.py`):
+   - Set `data_src = 2`
+   - Set `lvx_file_path = '/path/to/your/livox_data.lvx'` (absolute path)
+   For example, at the top of `rviz_HAP_launch.py`:
+     ```python
+     data_src      = 2    # Data source: 0-lidar, 1-hub, 2-lvx file
+     lvx_file_path = '/path/to/your/livox_data.lvx' 
+     ```
+2. Run the launch file:
+   ```shell
+   source ../../install/setup.sh
+   ros2 launch livox_ros_driver2 rviz_HAP_launch.py
+   ```
+
 ## 3. Launch file and livox_ros_driver2 internal parameter configuration instructions
 
 ### 3.1 Launch file configuration instructions
@@ -141,6 +175,8 @@ All internal parameters of Livox_ros_driver2 are in the launch file. Below are d
 | publish_freq | Set the frequency of point cloud publish <br>Floating-point data type, recommended values 5.0, 10.0, 20.0, 50.0, etc. The maximum publish frequency is 100.0 Hz.| 10.0    |
 | multi_topic  | If the LiDAR device has an independent topic to publish pointcloud data<br>0 -- All LiDAR devices use the same topic to publish pointcloud data<br>1 -- Each LiDAR device has its own topic to publish point cloud data | 0       |
 | xfer_format  | Set pointcloud format<br>0 -- Livox pointcloud2(PointXYZRTLT) pointcloud format<br>1 -- Livox customized pointcloud format<br>2 -- Standard pointcloud2 (pcl :: PointXYZI) pointcloud format in the PCL library (just for ROS) | 0       |
+| data_src     | Set the data source. <br>0: Livox Lidar (live data via SDK) <br>1: Livox Hub (data via SDK, this mode is not fully supported by all LiDAR types in this driver version) <br>2: LVX file (replay recorded data from .lvx file) | 0       |
+| cmdline_file_path (ROS1) / lvx_file_path (ROS2) | The absolute path to the .lvx file to be replayed. This parameter is used when `data_src` is set to `2`. | `livox_test.lvx` (ROS1 default arg) / `/home/livox/livox_test.lvx` (ROS2 default) |
 
   **Note :**
 
